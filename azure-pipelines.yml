@@ -1,0 +1,68 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    
+    Python36:
+      python.version: '3.6'
+    
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    pip install pytest pytest-azurepipelines
+    echo "========================"
+    echo "defult PyTest"
+    echo "========================"
+    pytest
+  displayName: 'pytest - Mandidate'
+
+- script: |
+    pip install pylint
+    echo "========================"
+    echo "Bonus PyLint"
+    echo "========================"
+    pylint test_app.py
+  displayName: 'PyLint - Bonus'
+  
+
+- script: |
+    pip install pyflakes
+    echo "========================"
+    echo "Bonus PyFlakes"
+    echo "========================"
+    pyflakes test_app.py
+  displayName: 'PyFlakes - Bonus'
+
+- script: |
+    pip install pycodestyle
+    echo "========================"
+    echo "Bonus PyCodeStyle"
+    echo "========================"
+    pycodestyle test_app.py
+  displayName: 'PyCodeStyle - Bonus'
+
+
+- task: CopyPublishBuildArtifacts@1
+  inputs:
+    Contents: '**'
+    ArtifactName: 'PythonTestedCode'
+    ArtifactType: 'FilePath'
+
