@@ -23,6 +23,16 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
+    pip install flask flask_mongoengine pymongo
+    curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+    apt-key list
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+    sudo apt update -y
+    sudo apt install mongodb-org
+    sudo systemctl start mongod.service
+    sudo systemctl status mongod
+    sudo systemctl enable mongod
+
   displayName: 'Install dependencies'
 
 - script: |
@@ -59,9 +69,17 @@ steps:
   displayName: 'PyCodeStyle - Bonus'
 
 
-- task: CopyPublishBuildArtifacts@1
-  inputs:
-    Contents: '**'
-    ArtifactName: 'PythonTestedCode'
-    ArtifactType: 'FilePath'
 
+# Copying Build Stage File
+- task: CopyFiles@2
+  inputs:
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Copying Files to Stage Area'
+
+# Paste Files to Pipeline
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'PythonBuildFiles'
+    publishLocation: 'Container'
+  displayName: 'Publishing Artifacts'
