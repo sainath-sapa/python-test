@@ -11,7 +11,6 @@ Flask to Perform Actions on WebApp
 
 # from index import app
 
-from wsgiref.util import request_uri
 from flask_mongoengine import MongoEngine
 from bson.objectid import ObjectId
 from datetime import datetime
